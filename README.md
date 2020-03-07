@@ -33,5 +33,5 @@ $ source ./set_aws_mfa_auth.sh test 123456
 $ source ./set_aws_mfa_auth.sh
 
 # Switch back to the test profile
-$ source ./set_aws_mfa_auth.sh
+$ source ./set_aws_mfa_auth.sh test
 ```
