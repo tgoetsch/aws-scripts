@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-import boto3
 import json
 import time
+import boto3
 
 CLOUDFORMATION_CLIENT = boto3.client('cloudformation')
 
 def get_stack_names():
     print("Collecting list of stack names...")
     stacks = CLOUDFORMATION_CLIENT.list_stacks(
-        StackStatusFilter = [
+        StackStatusFilter=[
             'CREATE_COMPLETE',
             'ROLLBACK_COMPLETE',
             'UPDATE_COMPLETE',
@@ -34,7 +34,7 @@ def start_drift_detection(stack_names):
     for stack_name in stack_names:
         print("Starting drift detection for {}".format(stack_name))
         detect_stack_drift_response = CLOUDFORMATION_CLIENT.detect_stack_drift(
-            StackName = stack_name
+            StackName=stack_name
         )
         stack_drift_detection_ids.append(detect_stack_drift_response['StackDriftDetectionId'])
 
@@ -50,7 +50,7 @@ def wait_for_stack_detection(stack_drift_detection_ids):
             detection_in_progress = False
 
             detection_status = CLOUDFORMATION_CLIENT.describe_stack_drift_detection_status(
-                StackDriftDetectionId = detection_id
+                StackDriftDetectionId=detection_id
             )
 
             if detection_status['DetectionStatus'] == 'DETECTION_IN_PROGRESS':
@@ -75,7 +75,7 @@ def get_drifted_resources(stack_names):
     for stack_name in stack_names:
         print("getting out of sync resources for {}".format(stack_name))
         stack_drifted_resources = CLOUDFORMATION_CLIENT.describe_stack_resource_drifts(
-            StackName = stack_name,
+            StackName=stack_name,
             StackResourceDriftStatusFilters=[
                 'MODIFIED',
                 'DELETED'
@@ -85,13 +85,16 @@ def get_drifted_resources(stack_names):
 
     return drifted_resources
 
-if __name__ == '__main__':
+def main():
     stack_names = get_stack_names()
     stack_drift_detection_ids = start_drift_detection(stack_names)
     stack_statuses = wait_for_stack_detection(stack_drift_detection_ids)
 
     if not all_stacks_in_sync(stack_statuses):
         drifted_resources = get_drifted_resources(stack_names)
-        print(json.dumps(drifted_resources, indent = 4, default = str))
+        print(json.dumps(drifted_resources, indent=4, default=str))
     else:
         print('No stacks have drifted')
+
+if __name__ == '__main__':
+    main()
