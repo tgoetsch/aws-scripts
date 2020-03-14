@@ -44,7 +44,7 @@ def wait_for_stack_detection(stack_drift_detection_ids):
     detection_in_progress = True
     stack_statuses = []
 
-    while detection_in_progress:
+    while detection_in_progress and stack_drift_detection_ids:
         time.sleep(5)
         for detection_id in stack_drift_detection_ids:
             detection_in_progress = False
